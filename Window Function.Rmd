@@ -1,0 +1,32 @@
+---
+title: "Week 3B Window Function"
+author: "Renee Watson"
+date: "2026-09-16"
+output: html_document
+---
+
+# Window Function 
+
+## Approach 
+
+In this assignment, I will use an LLM generated dataset containing daily sales for three products; Coffee, Tea, and Juice. The dataset includes daily observations from January 1 through March 31, 2026. This dataset provides a time series for multiple items, which will allow me to practice using window functions in R. My plan is to load the dataset into R and use dplyr to organize the data by item and date. I will calculate the year-to-date average sales for each product and the six-day moving average. I will group the data by item so that the calculations are performed separately for the products. 
+
+One challenge I anticipate is making sure that the observations are arranged in the correct date order and grouped by product so that the year-to-date and six-day moving averages are calculated correctly. 
+
+Data Source: daily_product_sales_2026.csv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
