@@ -361,19 +361,106 @@ display: none;
 <h1>Window Function</h1>
 <div id="approach" class="section level2">
 <h2>Approach</h2>
-<p>In this assignment, I will use an LLM generated dataset containing
-daily sales for three products; Coffee, Tea, and Juice. The dataset
+<p>In this assignment, I will use an LLM-generated dataset containing
+daily sales for three products: Coffee, Tea, and Juice. The dataset
 includes daily observations from January 1 through March 31, 2026. This
 dataset provides a time series for multiple items, which will allow me
 to practice using window functions in R. My plan is to load the dataset
 into R and use dplyr to organize the data by item and date. I will
-calculate the year-to-date average sales for each product and the
+calculate the year-to-date average, sales for each product and the
 six-day moving average. I will group the data by item so that the
 calculations are performed separately for the products.</p>
 <p>One challenge I anticipate is making sure that the observations are
 arranged in the correct date order and grouped by product so that the
 year-to-date and six-day moving averages are calculated correctly.</p>
 <p>Data Source: daily_product_sales_2026.csv</p>
+</div>
+<div id="codebase" class="section level2">
+<h2>Codebase</h2>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.4.3</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(slider)</code></pre>
+<pre><code>## Warning: package &#39;slider&#39; was built under R version 4.4.3</code></pre>
+<p>I loaded the daily sales dataset into R and examined its
+structure.</p>
+<pre class="r"><code>sales_data &lt;- read.csv(&quot;daily_product_sales_2026.csv&quot;)
+str(sales_data)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    270 obs. of  3 variables:
+##  $ date : chr  &quot;2026-01-01&quot; &quot;2026-01-02&quot; &quot;2026-01-03&quot; &quot;2026-01-04&quot; ...
+##  $ item : chr  &quot;Coffee&quot; &quot;Coffee&quot; &quot;Coffee&quot; &quot;Coffee&quot; ...
+##  $ sales: int  118 118 122 131 118 137 119 122 128 129 ...</code></pre>
+<p>I converted the date variable to a date format and arranged the
+observations by product and date. This ensures that the window
+calculations are performed in chronological order.</p>
+<pre class="r"><code>sales_data$date &lt;- as.Date(sales_data$date)
+sales_data &lt;- sales_data %&gt;%
+  arrange(item, date)</code></pre>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>I grouped the data by product so that the calculations would be
+performed separately for Coffee, Tea, and Juice. I calculated the
+year-to-date average which includes all sales observations for a product
+from the beginning of the year through the current date. I also
+calculated a six-day moving average, which uses the current day and the
+previous five days of sales.</p>
+<pre class="r"><code>sales_data &lt;- sales_data %&gt;%
+  group_by(item) %&gt;%
+  mutate(
+    ytd_average = cummean(sales),
+    six_day_average = slide_dbl(
+      sales,
+      mean,
+      .before = 5,
+      .complete = TRUE
+    )
+  ) %&gt;%
+  ungroup()</code></pre>
+<pre class="r"><code>sales_data %&gt;% 
+  group_by(item) %&gt;%
+  slice_head(n = 10) %&gt;%
+  ungroup()</code></pre>
+<pre><code>## # A tibble: 30 × 5
+##    date       item   sales ytd_average six_day_average
+##    &lt;date&gt;     &lt;chr&gt;  &lt;int&gt;       &lt;dbl&gt;           &lt;dbl&gt;
+##  1 2026-01-01 Coffee   118        118              NA 
+##  2 2026-01-02 Coffee   118        118              NA 
+##  3 2026-01-03 Coffee   122        119.             NA 
+##  4 2026-01-04 Coffee   131        122.             NA 
+##  5 2026-01-05 Coffee   118        121.             NA 
+##  6 2026-01-06 Coffee   137        124             124 
+##  7 2026-01-07 Coffee   119        123.            124.
+##  8 2026-01-08 Coffee   122        123.            125.
+##  9 2026-01-09 Coffee   128        124.            126.
+## 10 2026-01-10 Coffee   129        124.            126.
+## # ℹ 20 more rows</code></pre>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>In this analysis, I calculated year-to-date and six-day moving
+averages for daily sales of Coffee, Tea, and Juice. Grouping the data by
+product allowed each product’s averages to be calculated independently.
+The year-to-date average provides a cumulative measure of sales
+performance, while the six-day moving average focuses on more recent
+sales.</p>
+</div>
+<div id="ai-use" class="section level2">
+<h2>AI Use</h2>
+<p>ChatGPT was used as an AI-assisted tool to generate the artificial
+daily sales dataset and to assist with code development, debugging, and
+refinement. Its suggestions and generated code were reviewed, tested,
+and revised as needed. I remained responsible for the submitted
+analysis, code, and conclusions.</p>
+<p>Tool/model: ChatGPT/ GPT 5.6 Sol Developer: OpenAI Date accessed:
+September 18, 2026</p>
 </div>
 </div>
 

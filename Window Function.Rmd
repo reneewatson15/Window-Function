@@ -5,28 +5,71 @@ date: "2026-09-16"
 output: html_document
 ---
 
-# Window Function 
+# Window Function
 
-## Approach 
+## Approach
 
-In this assignment, I will use an LLM generated dataset containing daily sales for three products; Coffee, Tea, and Juice. The dataset includes daily observations from January 1 through March 31, 2026. This dataset provides a time series for multiple items, which will allow me to practice using window functions in R. My plan is to load the dataset into R and use dplyr to organize the data by item and date. I will calculate the year-to-date average sales for each product and the six-day moving average. I will group the data by item so that the calculations are performed separately for the products. 
+In this assignment, I will use an LLM-generated dataset containing daily sales for three products: Coffee, Tea, and Juice. The dataset includes daily observations from January 1 through March 31, 2026. This dataset provides a time series for multiple items, which will allow me to practice using window functions in R. My plan is to load the dataset into R and use dplyr to organize the data by item and date. I will calculate the year-to-date average, sales for each product and the six-day moving average. I will group the data by item so that the calculations are performed separately for the products.
 
-One challenge I anticipate is making sure that the observations are arranged in the correct date order and grouped by product so that the year-to-date and six-day moving averages are calculated correctly. 
+One challenge I anticipate is making sure that the observations are arranged in the correct date order and grouped by product so that the year-to-date and six-day moving averages are calculated correctly.
 
 Data Source: daily_product_sales_2026.csv
 
+## Codebase
 
+```{r}
+library(dplyr)
+library(slider)
+```
 
+I loaded the daily sales dataset into R and examined its structure.
 
+```{r}
+sales_data <- read.csv("daily_product_sales_2026.csv")
+str(sales_data)
+```
 
+I converted the date variable to a date format and arranged the observations by product and date. This ensures that the window calculations are performed in chronological order.
 
+```{r}
+sales_data$date <- as.Date(sales_data$date)
+sales_data <- sales_data %>%
+  arrange(item, date)
+```
 
+## Analysis
 
+I grouped the data by product so that the calculations would be performed separately for Coffee, Tea, and Juice. I calculated the year-to-date average which includes all sales observations for a product from the beginning of the year through the current date. I also calculated a six-day moving average, which uses the current day and the previous five days of sales.
 
+```{r}
+sales_data <- sales_data %>%
+  group_by(item) %>%
+  mutate(
+    ytd_average = cummean(sales),
+    six_day_average = slide_dbl(
+      sales,
+      mean,
+      .before = 5,
+      .complete = TRUE
+    )
+  ) %>%
+  ungroup()
 
+```
 
+```{r}
+sales_data %>% 
+  group_by(item) %>%
+  slice_head(n = 10) %>%
+  ungroup()
+```
 
+## Conclusion
 
+In this analysis, I calculated year-to-date and six-day moving averages for daily sales of Coffee, Tea, and Juice. Grouping the data by product allowed each product's averages to be calculated independently. The year-to-date average provides a cumulative measure of sales performance, while the six-day moving average focuses on more recent sales.
 
+## AI Use
 
+ChatGPT was used as an AI-assisted tool to generate the artificial daily sales dataset and to assist with code development, debugging, and refinement. Its suggestions and generated code were reviewed, tested, and revised as needed. I remained responsible for the submitted analysis, code, and conclusions.
 
+Tool/model: ChatGPT/ GPT 5.6 Sol Developer: OpenAI Date accessed: September 18, 2026
